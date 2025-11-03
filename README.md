@@ -2,7 +2,12 @@
 
 A lightweight Flask-based web application for demonstrating secure file upload, encryption, and download. Files are encrypted client-side (using Fernet symmetric encryption) before storage and decrypted only during download. Ideal for a quick proof-of-concept on data privacy in a local "mini-cloud" setup—no databases, users, or external services required.
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)](https://flask.palletsprojects.com/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)](https://flask.palletsprojects.com/) 
+
+
+## Screenshot
+![Frontend UI - Secure File Upload and List](frontend-screenshot.png)
+*Simple interface for encrypting/uploading files and downloading decrypted originals.*
 
 ## Features
 - **Secure Upload**: Encrypt files on-the-fly with AES-based Fernet before saving to disk.
@@ -61,7 +66,7 @@ A lightweight Flask-based web application for demonstrating secure file upload, 
 ### Install from Scratch (No Repo)
 If not using Git:
 1. Create project dir: `mkdir secure-mini-cloud && cd secure-mini-cloud`
-2. Copy `app.py` and `templates/index.html` from [this gist](link-to-gist-if-needed).
+2. Copy `app.py` and `templates/index.html`.
 3. Follow steps 2–5 above.
 
 ## Usage
@@ -104,13 +109,3 @@ secure-mini-cloud/
 - **Downloads Fail**: Check server logs (terminal); ensure filename has no spaces.
 - **Formatting Issues**: Ensure `README.md` is UTF-8; hard-refresh GitHub page.
 - **Deps Missing**: Run `uv pip freeze > requirements.txt` to update.
-
-## Contributing
-Fork, PR, or open issues! Ideas: Add auth, delete files, or multi-user support.
-
-## License
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-*Built for a data security demo. Questions? Open an issue! 🚀*
