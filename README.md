@@ -99,13 +99,3 @@ secure-mini-cloud/
 └── .gitignore          # Ignores venv, .enc, etc.
 ```
 
-## Security Notes
-- **Key Management**: Hardcoded key for demo—use env vars (e.g., `os.getenv('SECRET_KEY')`) in production.
-- **Limitations**: No auth (local-only); fixed key exposes if code is shared. No file size limits or validation.
-- **Best Practices**: For real use, add HTTPS, user sessions, and per-file keys.
-
-## Troubleshooting
-- **Key Error**: Regenerate and update `KEY` in `app.py`.
-- **Downloads Fail**: Check server logs (terminal); ensure filename has no spaces.
-- **Formatting Issues**: Ensure `README.md` is UTF-8; hard-refresh GitHub page.
-- **Deps Missing**: Run `uv pip freeze > requirements.txt` to update.
