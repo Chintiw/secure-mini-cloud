@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>File Crypto Demo</title></head>
+<body>
+    <h1>File Upload/Download with Encryption</h1>
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+    {% if message %}<p style="color:green;">{{ message }}</p>{% endif %}
+    
+    <h2>Upload File</h2>
+    <form method="POST" enctype="multipart/form-data">
+        File: <input type="file" name="file" required><br><br>
+        <button type="submit">Encrypt & Upload</button>
+    </form>
+    
+    <h2>Files (Click to Decrypt & Download)</h2>
+    <ul>
+    {% for file in files %}
+        <li><a href="/download/{{ file }}">{{ file }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
