@@ -1,6 +1,6 @@
 # Secure Mini Cloud MVP
 
-A lightweight Flask-based web application for demonstrating secure file upload, encryption, and download. Files are encrypted client-side (using Fernet symmetric encryption) before storage and decrypted only during download. Ideal for a quick proof-of-concept on data privacy in a local "mini-cloud" setup—no databases, users, or external services required.
+A lightweight Flask-based web application for demonstrating secure file upload, encryption, and download.
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)](https://flask.palletsprojects.com/) 
 
