@@ -1,14 +1,22 @@
+# ============================================================
 # Virtual Environment
+# ============================================================
 .venv/
 venv/
 env/
+ENV/
 
+# ============================================================
 # Python Bytecode and Cache
+# ============================================================
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
 
+# ============================================================
 # Distribution / Packaging
+# ============================================================
 .Python
 build/
 develop-eggs/
@@ -25,18 +33,56 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Encrypted Files (your uploads)
-*.enc
+# ============================================================
+# Database Files (NEVER commit these!)
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+instance/
+secure_cloud.db
+
+# ============================================================
+# User Uploads & Encrypted Files
+# ============================================================
 uploads/
+*.enc
 
+# ============================================================
+# Product/Design Docs (keep out of source control)
+# ============================================================
+*PRD*.md
+*PRD*.txt
+SecureCloud_PRD*/
+
+# ============================================================
+# Sample / Demo Data
+# ============================================================
+sample_data/
+
+# ============================================================
 # Logs and Temp Files
+# ============================================================
 *.log
 logs/
 tmp/
 temp/
 
-# OS/Editor Junk
+# ============================================================
+# Secrets & Environment Variables
+# ============================================================
+.env
+.env.*
+*.pem
+*.key
+secrets/
+config/secrets.py
+
+# ============================================================
+# OS Junk
+# ============================================================
 .DS_Store
 .DS_Store?
 ._*
@@ -44,15 +90,21 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# IDE/Editor
+# ============================================================
+# IDE / Editor
+# ============================================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Environment Variables (if you add any)
-.env
-
-# Requirements (optional: if you regenerate often)
-# requirements.txt  # Uncomment if you don't want to track it
+# ============================================================
+# Screenshots / Dev Assets (optional: remove if intentional)
+# ============================================================
+# frontend-screenshot.png  # Uncomment to ignore screenshots

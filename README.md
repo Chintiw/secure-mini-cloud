@@ -1,27 +1,28 @@
-# Secure Mini Cloud MVP
+# SecureCloud Level-Up MVP
 
-A lightweight Flask-based web application for demonstrating secure file upload, encryption, and download.
+A robust, secure, and modern Flask-based web application for demonstrating per-user encryption, secure file uploads, and cryptographic data isolation. This project has evolved from a basic MVP into a full-featured "cyber security" product.
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)](https://flask.palletsprojects.com/) 
-
-
-## Screenshot
-![Frontend UI - Secure File Upload and List](frontend-screenshot.png)
-*Simple interface for encrypting/uploading files and downloading decrypted originals.*
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-3.0%2B-green)](https://flask.palletsprojects.com/) [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-red)](https://www.sqlalchemy.org/)
 
 ## Features
-- **Secure Upload**: Encrypt files on-the-fly with AES-based Fernet before saving to disk.
-- **File Listing & Download**: View encrypted files and decrypt/download originals with one click.
-- **Data Isolation**: Encrypted blobs (`.enc` files) are unreadable without the key.
-- **Minimalist UI**: Simple HTML form for upload; no JavaScript or styling bloat.
-- **Local Demo**: Runs on `localhost`—perfect for testing encryption correctness.
+
+- **User Authentication**: Secure registration and login using `flask-login` and bcrypt password hashing (work factor >= 12).
+- **Per-User Encryption**: Every user gets a unique, automatically generated AES-based Fernet encryption key upon registration.
+- **Data Isolation**: Uploads are stored in isolated user directories (`uploads/<user_id>`), encrypted on-the-fly.
+- **Strict Access Control**: Files are tracked via unguessable UUIDs in the database. Download routes verify ownership; mismatched attempts are blocked with HTTP 403 Forbidden.
+- **File Operations**: 
+  - Upload files up to 50 MB.
+  - Whitelisted extensions (`.txt`, `.pdf`, `.docx`, `.xlsx`, `.jpg`, `.png`, `.zip`).
+  - Delete files (removes the encrypted blob from disk and the database record).
+- **Premium UI/UX**: Completely styled with a modern "dark mode" design system, featuring glassmorphism, responsive data tables, metric cards, and CSS animations.
 
 ## Tech Stack
 - **Backend**: Flask (Python web framework)
+- **Database**: SQLite + SQLAlchemy (ORM)
+- **Authentication**: Flask-Login + Flask-Bcrypt
 - **Encryption**: `cryptography` library (Fernet for AES-128 + HMAC)
-- **Package Management**: UV (fast pip alternative)
-- **Frontend**: Vanilla HTML
-- **Storage**: Local filesystem (`uploads/` dir)
+- **Frontend**: HTML5 + Vanilla CSS (Custom styling in `static/style.css`)
+- **Storage**: Local filesystem (`instance/secure_cloud.db`, `uploads/` dir)
 
 ## Quick Start
 
@@ -36,66 +37,54 @@ A lightweight Flask-based web application for demonstrating secure file upload, 
    cd secure-mini-cloud
    ```
 
-2. **Set Up Virtual Environment**:
+2. **Set Up Virtual Environment** (optional but recommended):
    ```bash
-   uv venv  # Creates .venv
-   source .venv/bin/activate  # Mac/Linux; use .venv\Scripts\activate on Windows
+   python -m venv .venv
+   source .venv/bin/activate  # Mac/Linux
+   # or `.venv\Scripts\activate` on Windows
    ```
 
 3. **Install Dependencies**:
    ```bash
-   uv pip install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
-4. **Generate Encryption Key** (One-Time Setup):
+4. **Run the App**:
    ```bash
-   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+   python app.py
    ```
-   - Copy the output (e.g., `gAAAAAB...==`) and replace the placeholder in `app.py`:
-     ```python
-     KEY = b'your_generated_key_here'
-     ```
-
-5. **Run the App**:
-   ```bash
-   mkdir -p uploads templates  # Create dirs if missing
-   uv run python app.py
-   ```
+   - The database (`instance/secure_cloud.db`) is generated automatically upon the first run.
    - Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
-### Install from Scratch (No Repo)
-If not using Git:
-1. Create project dir: `mkdir secure-mini-cloud && cd secure-mini-cloud`
-2. Copy `app.py` and `templates/index.html`.
-3. Follow steps 2–5 above.
+## Usage Guide (Demo Scenarios)
 
-## Usage
-1. **Upload a File**:
-   - Select any file (e.g., `secret.txt` with content "Hello, encrypted world!").
-   - Click "Encrypt & Upload".
-   - File saves as `secret.txt.enc` (binary gibberish—verify manually!).
-
-2. **View & Download**:
-   - Page refreshes to show a list of files.
-   - Click the filename (or button) to decrypt and download the original.
-   - Test: Downloaded file should match the upload exactly.
-
-3. **Verify Encryption**:
-   - Open `uploads/secret.txt.enc` in a text editor—should be unreadable.
-   - Wrong key? Decryption fails (app returns error).
-
-Example Workflow:
-- Upload `test.pdf` → List shows "test" → Download → Gets original PDF.
+1. **Register & Login**:
+   - Create an account at `/register`. Log in at `/login`.
+2. **Upload & Encryption Verification**:
+   - Upload a test file on the dashboard.
+   - Navigate to `uploads/<your_user_id>/` in your file explorer. Open the `.enc` file in a text editor to verify it is unreadable binary gibberish.
+3. **Cross-User Access Blocked**:
+   - Right-click "Download" on your file and copy the link.
+   - Log out, register a second account, and paste the link.
+   - The server will return a `403 Forbidden` error.
+4. **Delete Verification**:
+   - Click "Delete" on the dashboard. The file vanishes from the UI, the `.enc` file is removed from disk, and the database record is dropped.
 
 ## Project Structure
 ```
 secure-mini-cloud/
-├── app.py              # Flask backend (routes, encryption logic)
+├── app.py                 # Flask backend (routes, models, encryption logic)
+├── static/
+│   └── style.css          # Premium dark mode design system
 ├── templates/
-│   └── index.html      # Simple upload/list UI
-├── uploads/            # Encrypted files (ignored by Git)
-├── requirements.txt    # Frozen deps
-├── README.md           # This file
-└── .gitignore          # Ignores venv, .enc, etc.
+│   ├── base.html          # Global layout & flash messages
+│   ├── index.html         # Dashboard & upload metrics
+│   ├── login.html         # Login form
+│   └── register.html      # Registration form
+├── instance/
+│   └── secure_cloud.db    # Auto-generated SQLite database
+├── uploads/               # Isolated user directories containing .enc files
+├── sample_data/           # Sample files for testing
+├── requirements.txt       # Python dependencies
+└── README.md              # This documentation
 ```
-

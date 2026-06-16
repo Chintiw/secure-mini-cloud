@@ -1,22 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head><title>File Crypto Demo</title></head>
-<body>
-    <h1>File Upload/Download with Encryption</h1>
-    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-    {% if message %}<p style="color:green;">{{ message }}</p>{% endif %}
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Total Files</div>
+            <div class="metric-value">{{ files|length }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Storage Used</div>
+            <div class="metric-value">{{ files|sum(attribute='file_size')|filesizeformat }}</div>
+        </div>
+    </div>
+
+    <div class="upload-section glass-card">
+        <h3 style="margin-bottom: 1.5rem;">Secure Upload</h3>
+        <form method="POST" enctype="multipart/form-data" class="upload-dropzone">
+            <input type="file" name="file" required style="margin-bottom: 1rem;"><br>
+            <button type="submit" class="btn btn-primary" style="width: auto;">Encrypt & Upload</button>
+            <div class="upload-hint">
+                Allowed types: .txt, .pdf, .docx, .xlsx, .jpg, .png, .zip <br>
+                Maximum size: 50 MB
+            </div>
+        </form>
+    </div>
     
-    <h2>Upload File</h2>
-    <form method="POST" enctype="multipart/form-data">
-        File: <input type="file" name="file" required><br><br>
-        <button type="submit">Encrypt & Upload</button>
-    </form>
-    
-    <h2>Files (Click to Decrypt & Download)</h2>
-    <ul>
-    {% for file in files %}
-        <li><a href="/download/{{ file }}">{{ file }}</a></li>
-    {% endfor %}
-    </ul>
-</body>
-</html>
+    <div class="table-container">
+        {% if files %}
+        <table>
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Size</th>
+                    <th>Uploaded On</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ file.original_filename }}</td>
+                    <td>{{ file.file_size|filesizeformat }}</td>
+                    <td>{{ file.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <a href="{{ url_for('download', file_uuid=file.id) }}" class="btn btn-outline btn-sm">Download</a>
+                            <form method="POST" action="{{ url_for('delete_file', file_uuid=file.id) }}" style="display: inline; margin: 0;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                <p>No files uploaded yet. Your encrypted vault is empty.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
