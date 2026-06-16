@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, send_file, redirect, url_for, flash
 import os
 from cryptography.fernet import Fernet
@@ -10,6 +11,7 @@ from flask_migrate import Migrate
 
 from config import active_config
 from models import db, User, File, BlockchainLedger   # single source of truth
+from chain import add_block   # AUDIT: blockchain event recording
 
 app = Flask(__name__)
 app.config.from_object(active_config)
@@ -102,9 +104,13 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and bcrypt.check_password_hash(user.password_hash, password):
             login_user(user)
+            # AUDIT-05: Record successful login with username + client IP
+            add_block(action="LOGIN", actor=user.username, detail=request.remote_addr)
             flash('Logged in successfully.', 'success')
             return redirect(url_for('index'))
         else:
+            # AUDIT-04: Record failed login with email attempted + client IP
+            add_block(action="LOGIN_FAIL", actor=email, detail=request.remote_addr)
             flash('Invalid credentials', 'danger')
             
     return render_template('login.html')
@@ -160,6 +166,9 @@ def index():
         )
         db.session.add(new_file)
         db.session.commit()
+
+        # AUDIT-01: Record upload event after successful encrypt + DB write
+        add_block(action="UPLOAD", actor=current_user.username, detail=file.filename)
         
         flash(f'Uploaded {file.filename} (encrypted)!', 'success')
         return redirect(url_for('index'))
@@ -190,6 +199,9 @@ def download(file_uuid):
     
     user_fernet = Fernet(current_user.encryption_key.encode('utf-8'))
     decrypted_content = user_fernet.decrypt(encrypted_content)
+
+    # AUDIT-02: Record download event after successful decryption
+    add_block(action="DOWNLOAD", actor=current_user.username, detail=file_record.original_filename)
     
     return send_file(
         io.BytesIO(decrypted_content), 
@@ -214,6 +226,9 @@ def delete_file(file_uuid):
         
     db.session.delete(file_record)
     db.session.commit()
+
+    # AUDIT-03: Record delete event after successful disk + DB removal
+    add_block(action="DELETE", actor=current_user.username, detail=file_record.original_filename)
     
     flash('File deleted successfully.', 'success')
     return redirect(url_for('index'))
