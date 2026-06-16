@@ -3,29 +3,29 @@ import os
 from cryptography.fernet import Fernet
 import io
 import uuid
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate
+
+from config import active_config
+from models import db, User, File, BlockchainLedger   # single source of truth
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(32) # NFR-03: Session Security
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///secure_cloud.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+app.config.from_object(active_config)
 
-db = SQLAlchemy(app)
+# --- Extensions ---
+db.init_app(app)
 bcrypt = Bcrypt(app)
+migrate = Migrate(app, db)       # enables: flask db init / migrate / upgrade
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-KEY = b'xQslvTPBF-IKGg4AoIGRT1wSPf89fODkAV0Wmv37zcM='
-
 os.makedirs('uploads', exist_ok=True)
-fernet = Fernet(KEY)
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'xlsx', 'jpg', 'png', 'zip'}
+ALLOWED_EXTENSIONS = app.config['ALLOWED_EXTENSIONS']
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -45,32 +45,21 @@ def request_entity_too_large(error):
     flash('File too large! Maximum size is 50 MB.', 'danger')
     return redirect(url_for('index'))
 
-# --- Models ---
-class User(db.Model, UserMixin):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
-    encryption_key = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class File(db.Model):
-    __tablename__ = 'files'
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    original_filename = db.Column(db.String(255), nullable=False)
-    stored_filename = db.Column(db.String(255), nullable=False)
-    file_size = db.Column(db.Integer, nullable=False)
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- Setup DB ---
+# --- DB setup (dev convenience — production uses: flask db upgrade) ---
 with app.app_context():
     db.create_all()
+    # CHAIN-05: Auto-create genesis block on first run if ledger is empty
+    if BlockchainLedger.query.count() == 0:
+        try:
+            from chain import add_block
+            add_block(action="GENESIS", actor="system", detail="chain initialized")
+        except ImportError:
+            pass
+
 
 # --- Auth Routes ---
 @app.route('/register', methods=['GET', 'POST'])
