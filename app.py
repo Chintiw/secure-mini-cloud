@@ -61,6 +61,14 @@ def request_entity_too_large(error):
     flash('File too large! Maximum size is 50 MB.', 'danger')
     return redirect(url_for('index'))
 
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template('403.html'), 403
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

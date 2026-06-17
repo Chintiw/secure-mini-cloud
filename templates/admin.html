@@ -1,31 +1,28 @@
 {% extends "base.html" %}
+{% block title %}Admin — Audit Ledger{% endblock %}
 
 {% block content %}
-<div class="admin-surface">
-
-  <!-- Skip to main content (Web Interface Guidelines: include skip link) -->
-  <a href="#ledger-table" class="skip-link">Skip to ledger</a>
-
+<div class="container-admin fade-in" style="padding-top: var(--space-4xl);">
   <!-- Page header -->
-  <div class="admin-header">
+  <div class="admin-header stagger-1">
     <div class="admin-title-group">
-      <h1 class="admin-title">
-        <span aria-hidden="true" class="admin-shield-icon">🛡</span>
-        Admin Dashboard
+      <h1 class="display-lg admin-title">
+        <span aria-hidden="true" class="admin-shield-icon" style="color: var(--mute);">🛡</span>
+        Admin dashboard.
       </h1>
-      <p class="admin-subtitle">
-        <span class="admin-eyebrow">BLOCKCHAIN AUDIT LEDGER</span>
-        &nbsp;·&nbsp; SecureCloud v3.0
+      <p class="admin-subtitle" style="margin-top: var(--space-xs);">
+        <span class="caption-mono" style="color: var(--mute);">BLOCKCHAIN AUDIT LEDGER</span>
+        <span style="color: var(--mute);">&nbsp;·&nbsp; SecureCloud v3.0</span>
       </p>
     </div>
-    <div class="admin-stats">
-      <div class="admin-stat-card">
-        <div class="admin-stat-label">Total Blocks</div>
-        <div class="admin-stat-value">{{ total_blocks }}</div>
+    <div class="admin-stats" style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+      <div class="admin-stat-card stat-card" style="flex: 1; min-width: 150px;">
+        <div class="caption-mono" style="color: var(--mute); margin-bottom: var(--space-xs);">TOTAL BLOCKS</div>
+        <div class="display-md">{{ total_blocks }}</div>
       </div>
-      <div class="admin-stat-card">
-        <div class="admin-stat-label">Chain Status</div>
-        <div class="admin-stat-value {% if chain_ok %}status-ok{% else %}status-fail{% endif %}">
+      <div class="admin-stat-card stat-card" style="flex: 1; min-width: 150px;">
+        <div class="caption-mono" style="color: var(--mute); margin-bottom: var(--space-xs);">CHAIN STATUS</div>
+        <div class="display-md" style="color: {% if chain_ok %}var(--success){% else %}var(--error){% endif %};">
           {% if chain_ok %}Intact{% else %}Broken{% endif %}
         </div>
       </div>
@@ -33,30 +30,29 @@
   </div>
 
   <!-- ADMIN-03: Integrity Status Banner -->
-  <!-- role=status for OK (non-urgent); role=alert for BROKEN (urgent) -->
   {% if chain_ok %}
-  <div class="integrity-banner integrity-ok"
+  <div class="integrity-banner valid stagger-2"
        role="status"
        aria-live="polite"
        aria-label="Chain integrity status: intact">
-    <span class="integrity-icon" aria-hidden="true">✓</span>
+    <span class="integrity-icon" aria-hidden="true" style="color: var(--success); font-size: 20px;">✓</span>
     <div class="integrity-body">
-      <p class="integrity-title">Chain Intact</p>
-      <p class="integrity-detail">
+      <p class="body-md" style="font-weight: 500; margin: 0;">Chain Intact</p>
+      <p class="body-sm" style="color: var(--body); margin: 0;">
         All {{ total_blocks }} block{{ 's' if total_blocks != 1 else '' }} verified
         &mdash; no tampering detected.
       </p>
     </div>
   </div>
   {% else %}
-  <div class="integrity-banner integrity-fail"
+  <div class="integrity-banner invalid stagger-2"
        role="alert"
        aria-live="assertive"
        aria-label="Chain integrity failure: broken at block {{ broken_at }}">
-    <span class="integrity-icon" aria-hidden="true">✗</span>
+    <span class="integrity-icon" aria-hidden="true" style="font-size: 20px;">✗</span>
     <div class="integrity-body">
-      <p class="integrity-title">Integrity Failure</p>
-      <p class="integrity-detail">
+      <p class="body-md" style="font-weight: 500; margin: 0;">Integrity Failure</p>
+      <p class="body-sm" style="margin: 0;">
         Chain broken at block <strong>#{{ broken_at }}</strong>
         &mdash; hash mismatch detected. Scroll to the highlighted row below.
       </p>
@@ -65,44 +61,41 @@
   {% endif %}
 
   <!-- ADMIN-02: Full Blockchain Ledger Table -->
-  <div class="admin-table-card">
-    <div class="admin-table-header">
-      <span class="admin-section-label">AUDIT LEDGER</span>
-      <span class="admin-table-hint">Showing newest blocks first</span>
+  <div class="table-card stagger-3">
+    <div class="data-table-header">
+      <div class="caption-mono" style="color: var(--ink);">AUDIT LEDGER</div>
+      <div class="caption" style="color: var(--mute);">Showing newest blocks first</div>
     </div>
 
     {% if blocks %}
-    <div class="admin-table-scroll">
-      <table id="ledger-table" aria-label="Blockchain audit ledger">
+    <div class="data-table-wrapper">
+      <table id="ledger-table" class="data-table mobile-cards" aria-label="Blockchain audit ledger">
         <thead>
           <tr>
-            <th scope="col" class="col-index">Block&nbsp;#</th>
-            <th scope="col" class="col-timestamp">Timestamp (UTC)</th>
-            <th scope="col" class="col-action">Action</th>
-            <th scope="col" class="col-actor">Actor</th>
-            <th scope="col" class="col-detail">Detail</th>
-            <th scope="col" class="col-hash">Hash</th>
+            <th scope="col" class="caption-mono">Block&nbsp;#</th>
+            <th scope="col" class="caption-mono">Timestamp (UTC)</th>
+            <th scope="col" class="caption-mono">Action</th>
+            <th scope="col" class="caption-mono">Actor</th>
+            <th scope="col" class="caption-mono">Detail</th>
+            <th scope="col" class="caption-mono">Hash</th>
           </tr>
         </thead>
         <tbody>
         {% for block in blocks %}
-          <tr {% if not chain_ok and block.id == broken_at %}data-broken="true" aria-label="Broken block: hash mismatch detected"{% endif %}>
-            <td class="col-index cell-index">#{{ block.id }}</td>
-            <td class="col-timestamp cell-timestamp">{{ block.timestamp }}</td>
-            <td class="col-action">
-              <span class="action-badge action-{{ block.action | lower | replace('_', '-') }}"
-                    aria-label="Action: {{ block.action }}">
+          <tr {% if not chain_ok and block.id == broken_at %}data-broken="true" aria-label="Broken block: hash mismatch detected" style="background: var(--error-soft);"{% endif %}>
+            <td data-label="BLOCK #" class="code">#{{ block.id }}</td>
+            <td data-label="TIMESTAMP" class="code">{{ block.timestamp }}</td>
+            <td data-label="ACTION">
+              <span class="action-badge action-{{ block.action | replace(' ', '-') }}">
                 {{ block.action }}
               </span>
             </td>
-            <td class="col-actor cell-actor">{{ block.actor }}</td>
-            <td class="col-detail">
-              <span class="cell-detail" title="{{ block.detail or '' }}">
-                {{ block.detail or '&mdash;' }}
-              </span>
+            <td data-label="ACTOR" class="body-sm">{{ block.actor }}</td>
+            <td data-label="DETAIL" class="body-sm" title="{{ block.detail or '' }}">
+              {{ block.detail or '&mdash;' }}
             </td>
-            <td class="col-hash">
-              <code class="cell-hash" title="{{ block.hash }}">{{ block.hash[:12] }}&hellip;</code>
+            <td data-label="HASH" class="code" title="{{ block.hash }}">
+              {{ block.hash[:12] }}&hellip;
             </td>
           </tr>
         {% endfor %}
@@ -110,17 +103,15 @@
       </table>
     </div>
     {% else %}
-    <div class="admin-empty-state">
-      <p>No blocks found. The genesis block is created automatically on first run.</p>
+    <div class="empty-state">
+      <p class="body-md" style="color: var(--body);">No blocks found. The genesis block is created automatically on first run.</p>
     </div>
     {% endif %}
   </div>
 
-  <!-- ADMIN-06 disclaimer -->
-  <p class="admin-disclaimer" aria-label="Admin page scope notice">
-    🔒 This view shows the audit ledger only &mdash; no file access or download controls (ADMIN-06).
+  <p class="caption stagger-4" style="color: var(--mute); text-align: center; margin-top: var(--space-xl);" aria-label="Admin page scope notice">
+    🔒 This view shows the audit ledger only &mdash; no file access or download controls (ADMIN-06).<br>
     The ledger is append-only; rows are never updated or deleted (NFR-06).
   </p>
-
 </div>
 {% endblock %}

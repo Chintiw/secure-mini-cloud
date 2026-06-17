@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Not Found{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="error-card fade-in" style="text-align: center;">
+        <span class="auth-icon" aria-hidden="true">🔍</span>
+        <h1 class="display-md" style="margin-bottom: var(--space-xs);">Page not found.</h1>
+        <p class="body-md" style="color: var(--body); margin-bottom: var(--space-xl);">The page you're looking for doesn't exist.</p>
+        <a href="{{ url_for('index') }}" class="btn-primary" style="display: inline-flex;">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
