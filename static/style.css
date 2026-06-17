@@ -471,27 +471,28 @@ a:hover {
 }
 
 /* Upload Dropzone */
+.sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
 .upload-dropzone {
+    display: block;
     border: 2px dashed var(--hairline);
     border-radius: var(--radius-md);
     padding: var(--space-3xl);
     text-align: center;
     transition: border-color 0.2s, background-color 0.2s;
     margin-bottom: var(--space-md);
-    position: relative;
+    cursor: pointer;
 }
 .upload-dropzone:hover {
     border-color: var(--link);
     background-color: rgba(0,112,243,0.02);
-}
-.upload-dropzone input[type="file"] {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    opacity: 0; cursor: pointer;
-    z-index: 10;
-}
-.upload-icon, .upload-hints {
-    pointer-events: none;
 }
 .upload-icon {
     font-size: 32px;

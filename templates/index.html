@@ -26,8 +26,9 @@
     <div class="upload-card stagger-3">
         <div class="caption-mono" style="color: var(--mute); margin-bottom: var(--space-md);">SECURE UPLOAD</div>
         <form method="POST" enctype="multipart/form-data">
-            <div class="upload-dropzone">
-                <input type="file" name="file" required id="file-upload" onchange="document.getElementById('file-name-display').innerText = this.files[0] ? this.files[0].name : 'Drag a file here, or click to browse';">
+            <input type="file" name="file" id="file-upload" class="sr-only"
+                   onchange="var d=document.getElementById('file-name-display'); var w=document.getElementById('dropzone-wrapper'); if(this.files[0]){d.innerHTML='✓ '+this.files[0].name; d.style.color='var(--success)'; w.style.borderColor='var(--link)'; w.style.backgroundColor='rgba(0,112,243,0.02)';} else {d.textContent='Drag a file here, or click to browse'; d.style.color='var(--body)'; w.style.borderColor=''; w.style.backgroundColor='';}">
+            <label for="file-upload" class="upload-dropzone" id="dropzone-wrapper">
                 <div class="upload-icon">&uarr;</div>
                 <div class="upload-hints">
                     <p class="body-sm" id="file-name-display" style="color: var(--body);">Drag a file here, or click to browse</p>
@@ -42,7 +43,7 @@
                         &mdash; Max 50 MB
                     </p>
                 </div>
-            </div>
+            </label>
             <button type="submit" class="btn-primary">Encrypt &amp; Upload</button>
         </form>
     </div>
