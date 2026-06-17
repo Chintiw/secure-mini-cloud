@@ -7,11 +7,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <!-- Add immediately after <body>, before <header> -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
         <div class="logo">Secure<span>Cloud</span></div>
         <nav class="nav-links">
             {% if current_user.is_authenticated %}
                 <span style="color: var(--text-secondary);">Welcome, {{ current_user.username }}</span>
+                {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin_dashboard') }}"
+                       class="btn btn-admin btn-sm"
+                       aria-label="Admin dashboard">
+                      <span aria-hidden="true">🛡</span> Admin
+                    </a>
+                {% endif %}
                 <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
             {% else %}
                 <a href="{{ url_for('login') }}">Login</a>
@@ -30,7 +39,7 @@
         {% endwith %}
     </div>
 
-    <main class="container">
+    <main class="container" id="main-content">
         {% block content %}{% endblock %}
     </main>
 </body>

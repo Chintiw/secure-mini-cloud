@@ -303,3 +303,515 @@ input[type="file"] {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+
+/* ================================================================
+   ADMIN DASHBOARD — DESIGN.md Vercel Token System
+   Scoped to .admin-surface to avoid overriding the dark UI elsewhere
+   ================================================================ */
+
+/* --- Skip link (Web Interface Guidelines: accessibility) --- */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: #171717;
+    color: #ffffff;
+    border-radius: 0 0 6px 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: top 0.2s ease;
+}
+.skip-link:focus-visible {
+    top: 0;
+    outline: 2px solid #0070f3;
+    outline-offset: 2px;
+}
+
+/* --- Admin surface: light token override --- */
+.admin-surface {
+    /* DESIGN.md color tokens */
+    --admin-canvas:         #ffffff;
+    --admin-canvas-soft:    #fafafa;
+    --admin-canvas-soft-2:  #f5f5f5;
+    --admin-ink:            #171717;
+    --admin-body:           #4d4d4d;
+    --admin-mute:           #888888;
+    --admin-hairline:       #ebebeb;
+    --admin-hairline-strong:#a1a1a1;
+    --admin-primary:        #171717;  /* ink = primary CTA */
+    --admin-link:           #0070f3;  /* success / link */
+    --admin-error:          #ee0000;
+    --admin-error-soft:     #f7d4d6;
+    --admin-warning:        #f5a623;
+    --admin-warning-soft:   #ffefcf;
+    --admin-violet:         #7928ca;
+    --admin-cyan:           #50e3c2;
+
+    /* DESIGN.md typography */
+    --admin-font-sans:  Inter, system-ui, -apple-system, sans-serif;
+    --admin-font-mono:  'JetBrains Mono', 'IBM Plex Mono', ui-monospace,
+                        SFMono-Regular, Menlo, Monaco, monospace;
+
+    background-color: var(--admin-canvas-soft);
+    color: var(--admin-ink);
+    font-family: var(--admin-font-sans);
+    min-height: calc(100vh - 64px);
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* --- Admin nav button (DESIGN.md: nav-cta-signup style, admin purple) --- */
+/* DESIGN.md: button-primary-sm shape: rounded.pill (100px), button-md typography */
+.btn-admin {
+    background-color: var(--violet, #7928ca);
+    color: #ffffff;
+    border: none;
+    border-radius: 100px;       /* rounded.pill per DESIGN.md */
+    font-size: 0.875rem;        /* button-md: 14px */
+    font-weight: 500;
+    line-height: 20px;
+    padding: 0 0.5rem;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+.btn-admin:hover {
+    background-color: #6d28d9;
+    box-shadow: 0 2px 8px rgba(109, 40, 217, 0.3);
+    color: #ffffff;
+}
+.btn-admin:focus-visible {
+    outline: 2px solid #7928ca;
+    outline-offset: 2px;
+}
+
+/* --- Admin page header --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.admin-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* DESIGN.md: display-lg — 32px / 600 / -1.28px */
+.admin-title {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.08rem;   /* -1.28px at 32px */
+    color: var(--admin-ink);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-wrap: balance;
+}
+
+.admin-shield-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.admin-subtitle {
+    color: var(--admin-body);
+    margin: 0;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+/* DESIGN.md: caption-mono for eyebrow labels */
+.admin-eyebrow {
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--admin-mute);
+    text-transform: uppercase;
+}
+
+/* Stat cards — DESIGN.md: card-soft chrome (canvas-soft, rounded.md, spacing.lg) */
+.admin-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.admin-stat-card {
+    background: var(--admin-canvas);
+    border-radius: 8px;             /* rounded.md */
+    padding: 1rem 1.5rem;           /* spacing.md/lg */
+    min-width: 120px;
+    text-align: center;
+    /* DESIGN.md Level 2 elevation: subtle drop + inset hairline */
+    box-shadow:
+        inset 0 0 0 1px var(--admin-hairline),
+        0px 1px 1px rgba(0,0,0,0.03),
+        0px 2px 2px rgba(0,0,0,0.04);
+}
+
+.admin-stat-label {
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--admin-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.admin-stat-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--admin-ink);
+    letter-spacing: -0.04rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-stat-value.status-ok   { color: var(--admin-link); }
+.admin-stat-value.status-fail { color: var(--admin-error); }
+
+/* --- Integrity Banner — DESIGN.md Level 3 elevation, base + variant pattern ---
+   Base class: layout, spacing, structure
+   Variant classes (.integrity-ok / .integrity-fail): tone, border, glow
+   (Tailwind Engineering Playbook: base owns layout, variants own tone) */
+.integrity-banner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;            /* rounded.lg */
+    margin-bottom: 1.75rem;
+    border-left: 4px solid transparent;
+    /* DESIGN.md Level 3 — Soft Stack */
+    box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.06),
+        0px 2px 2px rgba(0,0,0,0.04),
+        0px 8px 8px -8px rgba(0,0,0,0.04);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .integrity-banner {
+        animation: bannerSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+}
+
+@keyframes bannerSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+.integrity-ok {
+    background-color: rgba(0, 112, 243, 0.05);   /* link-soft tint */
+    border-left-color: var(--admin-link);          /* #0070f3 */
+}
+
+.integrity-fail {
+    background-color: var(--admin-error-soft);     /* #f7d4d6 */
+    border-left-color: var(--admin-error);          /* #ee0000 */
+}
+
+.integrity-icon {
+    font-size: 2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.integrity-ok   .integrity-icon { color: var(--admin-link); }
+.integrity-fail .integrity-icon { color: var(--admin-error); }
+
+.integrity-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+/* DESIGN.md: display-sm — 20px / 600 / -0.6px; text-wrap: balance (Guidelines) */
+.integrity-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.0375rem;  /* -0.6px */
+    margin: 0;
+    text-wrap: balance;
+}
+
+.integrity-ok   .integrity-title { color: var(--admin-link); }
+.integrity-fail .integrity-title { color: var(--admin-error); }
+
+/* DESIGN.md: body-sm — 14px / 400 / -0.28px */
+.integrity-detail {
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: -0.0175rem;
+    color: var(--admin-body);
+    margin: 0;
+}
+
+/* --- Table card — DESIGN.md Level 4 elevation (Float Stack) --- */
+.admin-table-card {
+    background: var(--admin-canvas);
+    border-radius: 12px;            /* rounded.lg */
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    /* DESIGN.md Level 4 — Float Stack + inset hairline ring */
+    box-shadow:
+        inset 0 0 0 1px var(--admin-hairline),
+        0px 2px 2px rgba(0,0,0,0.04),
+        0px 8px 16px -4px rgba(0,0,0,0.04);
+}
+
+.admin-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--admin-canvas-soft);
+    border-bottom: 1px solid var(--admin-hairline);
+}
+
+/* DESIGN.md: caption-mono — 12px / 400 / uppercase mono */
+.admin-section-label {
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--admin-mute);
+    text-transform: uppercase;
+}
+
+.admin-table-hint {
+    font-size: 0.75rem;
+    color: var(--admin-mute);
+}
+
+/* Horizontal scroll on small screens (content handling — Guidelines) */
+.admin-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* --- Admin table overrides (light surface, DESIGN.md ex-data-table-cell) --- */
+/* header uses caption-mono / canvas-soft-2 background per DESIGN.md */
+.admin-surface table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--admin-ink);
+}
+
+.admin-surface th {
+    /* DESIGN.md ex-data-table-cell: headerBackground = canvas-soft; headerTypography = caption-mono */
+    background: var(--admin-canvas-soft-2, #f5f5f5);
+    color: var(--admin-mute);
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.625rem 1rem;         /* DESIGN.md cellPadding: xs sm */
+    text-align: left;
+    border-bottom: 1px solid var(--admin-hairline);  /* rowBorder */
+}
+
+.admin-surface td {
+    /* DESIGN.md ex-data-table-cell: bodyTypography = body-sm */
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: -0.0175rem;
+    color: var(--admin-ink);
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--admin-hairline);
+}
+
+.admin-surface tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-surface tr:hover td {
+    background: var(--admin-canvas-soft);
+    transition: background-color 0.15s ease;         /* explicit property, not transition: all */
+}
+
+/* Broken row — tamper detection highlight */
+.admin-surface tr[data-broken="true"] td {
+    background: var(--admin-error-soft) !important;
+}
+.admin-surface tr[data-broken="true"] td:first-child {
+    border-left: 3px solid var(--admin-error);
+}
+
+/* Column widths */
+.col-index     { width: 80px;  }
+.col-timestamp { width: 160px; }
+.col-action    { width: 130px; }
+.col-actor     { width: 140px; }
+.col-detail    { min-width: 140px; }
+.col-hash      { width: 130px; }
+
+/* DESIGN.md: font-variant-numeric: tabular-nums on number columns (Guidelines §Typography) */
+.cell-index {
+    font-family: var(--admin-font-mono);
+    font-size: 0.8125rem;
+    color: var(--admin-mute);
+    font-variant-numeric: tabular-nums;
+}
+
+.cell-timestamp {
+    font-family: var(--admin-font-mono);
+    font-size: 0.75rem;
+    color: var(--admin-body);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cell-actor {
+    font-weight: 500;
+    color: var(--admin-ink);
+}
+
+/* Content handling: truncate long filenames (Guidelines §Content Handling) */
+.cell-detail {
+    display: block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--admin-body);
+}
+
+/* DESIGN.md: code typography — 13px / mono / tabular-nums (Guidelines §Typography) */
+.cell-hash {
+    font-family: var(--admin-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--admin-body);
+    background: var(--admin-canvas-soft-2, #f5f5f5);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--admin-hairline);
+    /* Use actual ellipsis character (Guidelines §Typography: "…" not "...") */
+    /* enforced in template via &hellip; */
+}
+
+/* --- Action Badges — DESIGN.md badge-secondary chrome + semantic color tints ---
+   Tokens: canvas-soft bg, body text, caption typography, rounded.full
+   Overridden per action with DESIGN.md gradient pair hues */
+.action-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;          /* rounded.full */
+    font-size: 0.75rem;             /* caption: 12px */
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+/* Develop gradient pair: blue-to-teal → UPLOAD */
+.action-upload {
+    background: rgba(0, 124, 240, 0.08);
+    color: #007cf0;
+    border-color: rgba(0, 124, 240, 0.2);
+}
+/* Develop gradient pair end → DOWNLOAD teal */
+.action-download {
+    background: rgba(0, 223, 216, 0.1);
+    color: #00a89d;
+    border-color: rgba(0, 223, 216, 0.25);
+}
+/* error red → DELETE */
+.action-delete {
+    background: var(--admin-error-soft);
+    color: var(--admin-error);
+    border-color: rgba(238, 0, 0, 0.2);
+}
+/* Preview gradient pair: violet → LOGIN */
+.action-login {
+    background: rgba(121, 40, 202, 0.08);
+    color: var(--admin-violet);
+    border-color: rgba(121, 40, 202, 0.2);
+}
+/* Ship gradient pair: amber → LOGIN_FAIL */
+.action-login-fail {
+    background: var(--admin-warning-soft);
+    color: var(--admin-warning);
+    border-color: rgba(245, 166, 35, 0.3);
+}
+/* Muted → GENESIS */
+.action-genesis {
+    background: var(--admin-canvas-soft);
+    color: var(--admin-mute);
+    border-color: var(--admin-hairline);
+}
+
+/* --- Admin empty state — DESIGN.md ex-empty-state-card --- */
+.admin-empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--admin-body);
+    background: var(--admin-canvas-soft);
+    font-size: 0.875rem;
+}
+
+/* --- Admin disclaimer --- */
+.admin-disclaimer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--admin-mute);
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* --- Focus states (Web Interface Guidelines: focus-visible, never outline-none alone) --- */
+.admin-surface a:focus-visible,
+.admin-surface button:focus-visible {
+    outline: 2px solid var(--admin-link);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* --- Responsive (DESIGN.md §Responsive: mobile-first, 600px tablet, 960px desktop) --- */
+@media (max-width: 600px) {
+    .admin-surface {
+        padding: 1rem;
+    }
+    .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .admin-stats {
+        width: 100%;
+    }
+    .admin-stat-card {
+        flex: 1;
+        min-width: 100px;
+    }
+    .admin-title {
+        font-size: 1.5rem;
+    }
+    .col-timestamp,
+    .col-hash { display: none; }   /* hide lowest-priority cols on mobile */
+}

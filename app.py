@@ -1,9 +1,10 @@
 
-from flask import Flask, request, render_template, send_file, redirect, url_for, flash
+from flask import Flask, request, render_template, send_file, redirect, url_for, flash, abort
 import os
 from cryptography.fernet import Fernet
 import io
 import uuid
+from functools import wraps
 
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -32,6 +33,19 @@ ALLOWED_EXTENSIONS = app.config['ALLOWED_EXTENSIONS']
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def admin_required(f):
+    """
+    ADMIN-01: Restrict access to is_admin=True users only.
+    Returns HTTP 403 for any authenticated non-admin user.
+    Unauthenticated users are handled upstream by @login_required.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.template_filter('filesizeformat')
 def filesizeformat(value):
@@ -83,7 +97,15 @@ def register():
         # generate per-user Fernet key (ISO-01)
         user_key = Fernet.generate_key().decode('utf-8')
         
-        new_user = User(username=username, email=email, password_hash=hashed_pw, encryption_key=user_key)
+        # ADMIN-05: First registered account becomes admin
+        is_first_user = User.query.count() == 0
+        new_user = User(
+            username=username,
+            email=email,
+            password_hash=hashed_pw,
+            encryption_key=user_key,
+            is_admin=is_first_user
+        )
         db.session.add(new_user)
         db.session.commit()
         
@@ -232,6 +254,33 @@ def delete_file(file_uuid):
     
     flash('File deleted successfully.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    """
+    ADMIN-01: admin_required enforces is_admin=True; non-admins get 403.
+    ADMIN-04: verify_chain() runs on every page load — no button needed.
+    ADMIN-06: renders ledger only — no file download or user management.
+    """
+    from chain import verify_chain
+    from models import BlockchainLedger
+
+    # ADMIN-04: live integrity check on every load
+    chain_ok, broken_at = verify_chain()
+
+    # ADMIN-02: newest-first for quick recent-activity view
+    blocks = BlockchainLedger.query.order_by(BlockchainLedger.id.desc()).all()
+    total_blocks = BlockchainLedger.query.count()
+
+    return render_template(
+        'admin.html',
+        chain_ok=chain_ok,
+        broken_at=broken_at,
+        blocks=blocks,
+        total_blocks=total_blocks
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -88,3 +88,49 @@ secure-mini-cloud/
 ├── requirements.txt       # Python dependencies
 └── README.md              # This documentation
 ```
+
+
+## Blockchain Audit Ledger (v3.0)
+
+SecureCloud v3.0 introduces a **local, append-only blockchain audit ledger** that
+records every file event (upload, download, delete) and authentication event
+(login success, login failure) as a cryptographically chained block.
+
+### Why a blockchain?
+
+A conventional SQLite audit log can be silently edited by anyone with database
+write access. The blockchain ledger solves this: each block commits to all prior
+blocks through a cumulative SHA-256 hash. Any retrospective modification of a
+past record changes that block's expected hash, which breaks the `previous_hash`
+link in every subsequent block — detectable in real time.
+
+> Academic reference: NIST SP 800-92 — *Guide to Computer Security Log Management*.
+> Hash-chained audit logs are documented as a tamper-evidence countermeasure against
+> insider log manipulation.
+
+### How it works
+
+1. On first run, a **genesis block** (action = `GENESIS`) is created automatically.
+2. Every auditable event appends a new block via `chain.add_block()`.
+3. Each block's `hash` = `SHA-256(index + timestamp + action + actor + detail + previous_hash)`.
+4. `chain.verify_chain()` iterates all blocks in order, recomputes hashes, and
+   checks `previous_hash` linkage.
+
+### Admin Dashboard
+
+Access the admin dashboard at `/admin`. Only the **first registered account** has
+admin privileges (`is_admin = True`). All subsequent accounts are regular users.
+
+The dashboard shows:
+- A **live integrity banner** — green `✓ Chain Intact` or red `✗ Integrity Failure — chain broken at block #N`
+- The **full audit ledger** as a table (newest blocks first)
+
+### Demo: tamper detection
+
+1. Perform several operations (login, upload, download, delete).
+2. Open `/admin` — confirm the green "Chain Intact" banner.
+3. Open `instance/secure_cloud.db` in DB Browser for SQLite.
+4. Edit the `detail` field of any middle block and save.
+5. Reload `/admin` — the red "Integrity Failure" banner appears, and the
+   tampered row is highlighted in the table.
+6. Restore the original value to return to the intact state.

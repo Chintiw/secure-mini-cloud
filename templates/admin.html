@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-surface">
+
+  <!-- Skip to main content (Web Interface Guidelines: include skip link) -->
+  <a href="#ledger-table" class="skip-link">Skip to ledger</a>
+
+  <!-- Page header -->
+  <div class="admin-header">
+    <div class="admin-title-group">
+      <h1 class="admin-title">
+        <span aria-hidden="true" class="admin-shield-icon">🛡</span>
+        Admin Dashboard
+      </h1>
+      <p class="admin-subtitle">
+        <span class="admin-eyebrow">BLOCKCHAIN AUDIT LEDGER</span>
+        &nbsp;·&nbsp; SecureCloud v3.0
+      </p>
+    </div>
+    <div class="admin-stats">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Blocks</div>
+        <div class="admin-stat-value">{{ total_blocks }}</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Chain Status</div>
+        <div class="admin-stat-value {% if chain_ok %}status-ok{% else %}status-fail{% endif %}">
+          {% if chain_ok %}Intact{% else %}Broken{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN-03: Integrity Status Banner -->
+  <!-- role=status for OK (non-urgent); role=alert for BROKEN (urgent) -->
+  {% if chain_ok %}
+  <div class="integrity-banner integrity-ok"
+       role="status"
+       aria-live="polite"
+       aria-label="Chain integrity status: intact">
+    <span class="integrity-icon" aria-hidden="true">✓</span>
+    <div class="integrity-body">
+      <p class="integrity-title">Chain Intact</p>
+      <p class="integrity-detail">
+        All {{ total_blocks }} block{{ 's' if total_blocks != 1 else '' }} verified
+        &mdash; no tampering detected.
+      </p>
+    </div>
+  </div>
+  {% else %}
+  <div class="integrity-banner integrity-fail"
+       role="alert"
+       aria-live="assertive"
+       aria-label="Chain integrity failure: broken at block {{ broken_at }}">
+    <span class="integrity-icon" aria-hidden="true">✗</span>
+    <div class="integrity-body">
+      <p class="integrity-title">Integrity Failure</p>
+      <p class="integrity-detail">
+        Chain broken at block <strong>#{{ broken_at }}</strong>
+        &mdash; hash mismatch detected. Scroll to the highlighted row below.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ADMIN-02: Full Blockchain Ledger Table -->
+  <div class="admin-table-card">
+    <div class="admin-table-header">
+      <span class="admin-section-label">AUDIT LEDGER</span>
+      <span class="admin-table-hint">Showing newest blocks first</span>
+    </div>
+
+    {% if blocks %}
+    <div class="admin-table-scroll">
+      <table id="ledger-table" aria-label="Blockchain audit ledger">
+        <thead>
+          <tr>
+            <th scope="col" class="col-index">Block&nbsp;#</th>
+            <th scope="col" class="col-timestamp">Timestamp (UTC)</th>
+            <th scope="col" class="col-action">Action</th>
+            <th scope="col" class="col-actor">Actor</th>
+            <th scope="col" class="col-detail">Detail</th>
+            <th scope="col" class="col-hash">Hash</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for block in blocks %}
+          <tr {% if not chain_ok and block.id == broken_at %}data-broken="true" aria-label="Broken block: hash mismatch detected"{% endif %}>
+            <td class="col-index cell-index">#{{ block.id }}</td>
+            <td class="col-timestamp cell-timestamp">{{ block.timestamp }}</td>
+            <td class="col-action">
+              <span class="action-badge action-{{ block.action | lower | replace('_', '-') }}"
+                    aria-label="Action: {{ block.action }}">
+                {{ block.action }}
+              </span>
+            </td>
+            <td class="col-actor cell-actor">{{ block.actor }}</td>
+            <td class="col-detail">
+              <span class="cell-detail" title="{{ block.detail or '' }}">
+                {{ block.detail or '&mdash;' }}
+              </span>
+            </td>
+            <td class="col-hash">
+              <code class="cell-hash" title="{{ block.hash }}">{{ block.hash[:12] }}&hellip;</code>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="admin-empty-state">
+      <p>No blocks found. The genesis block is created automatically on first run.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ADMIN-06 disclaimer -->
+  <p class="admin-disclaimer" aria-label="Admin page scope notice">
+    🔒 This view shows the audit ledger only &mdash; no file access or download controls (ADMIN-06).
+    The ledger is append-only; rows are never updated or deleted (NFR-06).
+  </p>
+
+</div>
+{% endblock %}
